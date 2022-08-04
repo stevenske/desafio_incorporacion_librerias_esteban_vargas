@@ -39,7 +39,7 @@ const showProducts = ({ img, trip, desc, price, id }) => {
                     <p class="card-title fs-5">${trip}</p>
                     <p class="card-text">${desc}</p>
                     <p class="card-text">$${price}</p>
-                    <button id="btn${id}" type="submit" class="btnBuy btn btn-train fw-bold"">BUY</button>
+                    <button id="btn${id}" type="submit" class="btnBuy btn btn-train fw-bold"">Add to Cart</button>
                 </div>
             </div>
     `
@@ -47,6 +47,12 @@ const showProducts = ({ img, trip, desc, price, id }) => {
     let button = document.getElementById(`btn${id}`)
     button.addEventListener("click", () => {
         addCart(id)
+        Toastify({
+            text: `${trip} was added to the shopping Cart`,
+            className: "addedTrip",
+            position: 'center',
+            gravity: "top",
+        }).showToast()
     })
     function addCart(idArticle) {
         let finded = stockTrips.find(article => article.id === idArticle)
@@ -99,14 +105,29 @@ showShoppingCart()
 showTotal()
 
 function updateCart() {
-    cartCounter.innerText = shoppingCart.reduce((acumulador,elemento)=> acumulador + elemento.quantityProd,0)
+    cartCounter.innerText = shoppingCart.reduce((acumulador, elemento) => acumulador + elemento.quantityProd, 0)
 }
 //----------------------------------------------------------
 
 //TOTAL-----------------------------------------------------
 function showTotal() {
-    totalContainer.className = 'mx-1 my-2 d-flex justify-content-end'
-    totalContainer.innerHTML = `Total Price:$${updateTotal()}`
+    totalContainer.className = 'mx-1 my-2 d-flex justify-content-between'
+    totalContainer.innerHTML = `
+                                    <p class='align-self-center border border-1 btn-train text-dark rounded-1 p-2'>Total Price:$${updateTotal()}</p>
+                                    <p><button id='emptyCart' type="submit" class="btn btn-train fw-bold py-1 px-3"><img src="/assets/img/clear-shopping-cart.png" class="card-img-top rounded zoom">
+                                    </button></p>
+                                    <p><button type="submit" class="btn btn-train fw-bold py-2 px-4">BUY</button></p>
+`
+    let btnEmptyCart = document.getElementById('emptyCart')
+    btnEmptyCart.addEventListener('click', () => {
+        removeAll()
+        Toastify({
+            text: `the shopping cart was emptied`,
+            className: "addedTrip",
+            position: 'right',
+            gravity: "top",
+        }).showToast();
+    })
 }
 
 function updateTotal() {
@@ -134,18 +155,28 @@ function removeItem(id) {
         }
     }
 }
+
+function removeAll() {
+    if (localStorage.getItem('shoppingTrips')) {
+        shoppingCart.splice(0, shoppingCart.length)
+        localStorage.removeItem('shoppingTrips')
+        showShoppingCart()
+        updateCart()
+        showTotal()
+    }
+}
 //----------------------------------------------------------
 
 //GET LOWEST TRIP PRICE-------------------------------------
 
-function getPrices(){
-    return stockTrips.map (trip => trip.price)
-}
+// function getPrices() {
+//     return stockTrips.map(trip => trip.price)
+// }
 
-function getLowestPrice(){
-    return Math.min(...getPrices())
-}
+// function getLowestPrice() {
+//     return Math.min(...getPrices())
+// }
 
-console.log(getLowestPrice())
+// console.log(getLowestPrice())
 //------------------------------------------------------------
 
